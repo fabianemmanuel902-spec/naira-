@@ -1,4 +1,203 @@
-<script>
+            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nairafund</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .nav-tab.active { color: #10b981; border-bottom: 3px solid #10b981; font-weight: 500; }
+        .card { transition: transform 0.2s ease; }
+        .card:hover { transform: translateY(-4px); }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen" class="fixed inset-0 bg-zinc-950 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <h1 class="text-3xl font-bold text-emerald-400 mt-6">Nairafund</h1>
+            <p class="text-zinc-400 mt-2">Loading...</p>
+        </div>
+    </div>
+
+    <!-- LOGIN PAGE -->
+    <div id="login-page" class="hidden min-h-screen flex items-center justify-center p-6">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-emerald-400">Nairafund</h1>
+                <p class="text-zinc-400 mt-2">Earn daily with mining</p>
+            </div>
+            
+            <div class="bg-zinc-900 rounded-3xl p-8">
+                <h2 class="text-2xl font-semibold mb-6 text-center">Login</h2>
+                <input id="login-identifier" type="text" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 mb-4 text-white focus:outline-none focus:border-emerald-500" placeholder="Email or Phone Number">
+                <input id="login-password" type="password" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 mb-6 text-white focus:outline-none focus:border-emerald-500" placeholder="Password">
+                
+                <button onclick="loginUser()" class="w-full bg-emerald-500 hover:bg-emerald-600 py-4 rounded-3xl font-semibold text-black transition">LOGIN</button>
+                
+                <div class="text-center mt-6">
+                    <p class="text-zinc-400">Don't have an account? 
+                        <span onclick="showRegister()" class="text-emerald-400 cursor-pointer hover:underline">Register</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTER PAGE -->
+    <div id="register-page" class="hidden min-h-screen flex items-center justify-center p-6">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-emerald-400">Nairafund</h1>
+            </div>
+            
+            <div class="bg-zinc-900 rounded-3xl p-8">
+                <h2 class="text-2xl font-semibold mb-6 text-center">Create Account</h2>
+                <input id="reg-name" type="text" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 mb-4 text-white focus:outline-none focus:border-emerald-500" placeholder="Full Name">
+                <input id="reg-phone" type="tel" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 mb-4 text-white focus:outline-none focus:border-emerald-500" placeholder="Phone Number (e.g. 08123456789)">
+                <input id="reg-email" type="email" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 mb-4 text-white focus:outline-none focus:border-emerald-500" placeholder="Email">
+                <input id="reg-password" type="password" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 mb-6 text-white focus:outline-none focus:border-emerald-500" placeholder="Password">
+                
+                <button onclick="registerUser()" class="w-full bg-emerald-500 hover:bg-emerald-600 py-4 rounded-3xl font-semibold text-black transition">REGISTER</button>
+                
+                <div class="text-center mt-6">
+                    <p class="text-zinc-400">Already have an account? 
+                        <span onclick="showLogin()" class="text-emerald-400 cursor-pointer hover:underline">Login</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VERIFICATION CODE MODAL -->
+    <div id="verify-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-zinc-900 rounded-3xl w-full max-w-md p-8 text-center border border-zinc-800">
+            <h3 class="text-2xl font-semibold mb-2">Verification Required</h3>
+            <p class="text-zinc-400 mb-6">This is your first login with this number</p>
+            
+            <div class="bg-zinc-800 rounded-2xl p-6 mb-6">
+                <p class="text-sm text-zinc-400">Your 4-digit code</p>
+                <p id="verify-code" class="text-5xl font-mono tracking-widest text-emerald-400 mt-2"></p>
+            </div>
+            
+            <button onclick="copyVerifyCode()" class="w-full bg-emerald-500 text-black py-4 rounded-3xl font-semibold mb-4 hover:bg-emerald-600 transition">
+                📋 Copy Code
+            </button>
+            <button onclick="closeVerifyModal()" class="w-full bg-zinc-700 hover:bg-zinc-600 py-4 rounded-3xl font-semibold transition">
+                Continue to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="hidden">
+        <!-- HEADER -->
+        <header class="bg-zinc-900 border-b border-zinc-800 py-4 px-6 sticky top-0 z-40">
+            <div class="max-w-5xl mx-auto flex items-center justify-between">
+                <h1 class="text-2xl font-semibold text-emerald-400">Nairafund</h1>
+                
+                <div class="flex items-center gap-6 text-base">
+                    <button onclick="switchTab(1)" id="tab1" class="nav-tab active px-4 py-1">Home</button>
+                    <button onclick="switchTab(2)" id="tab2" class="nav-tab px-4 py-1">Referral</button>
+                    <button onclick="switchTab(3)" id="tab3" class="nav-tab px-4 py-1">Withdraw</button>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <i class="fa-solid fa-bell text-zinc-400 hover:text-white cursor-pointer"></i>
+                    <div id="user-avatar" class="w-8 h-8 bg-emerald-500 text-black font-bold rounded-full flex items-center justify-center">U</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-5xl mx-auto px-5 py-6">
+            <!-- HOME TAB -->
+            <div id="tab-home" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-4">
+                        <div class="bg-zinc-900 rounded-3xl p-6 card border border-zinc-800">
+                            <p class="text-zinc-400 text-sm">Available Balance</p>
+                            <p id="balance" class="text-5xl font-semibold text-white mt-2">₦0.00</p>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-8 bg-zinc-900 rounded-3xl p-8 card border border-zinc-800">
+                        <div class="flex flex-col items-center">
+                            <div class="relative w-52 h-52">
+                                <svg class="w-full h-full -rotate-12" viewBox="0 0 200 200">
+                                    <circle cx="100" cy="100" r="82" fill="none" stroke="#27272a" stroke-width="20"/>
+                                    <circle cx="100" cy="100" r="82" fill="none" stroke="#10b981" stroke-width="20" stroke-dasharray="515" stroke-dashoffset="85" stroke-linecap="round"/>
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <div class="bg-yellow-400 text-black w-12 h-12 rounded-2xl flex items-center justify-center mb-3">
+                                        <i class="fa-solid fa-dollar-sign text-3xl"></i>
+                                    </div>
+                                    <div class="text-4xl font-semibold">85,000</div>
+                                    <p class="text-zinc-400">Naira / Day</p>
+                                </div>
+                            </div>
+
+                            <button onclick="startMining()" id="start-btn" class="mt-6 w-full max-w-sm bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl text-lg font-semibold transition text-black">
+                                START MINING
+                            </button>
+
+                            <div class="mt-8 w-full max-w-sm text-center">
+                                <p class="text-zinc-400 text-sm mb-1">Live Earnings</p>
+                                <div id="live-earnings" class="text-4xl font-semibold text-yellow-300">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REFERRAL TAB -->
+            <div id="tab-referral" class="tab-content hidden">
+                <div class="bg-zinc-900 rounded-3xl p-8 card border border-zinc-800 max-w-2xl mx-auto">
+                    <h2 class="text-2xl font-bold mb-4 text-emerald-400">Refer & Earn</h2>
+                    <p class="text-zinc-400 mb-6">Invite your friends and earn a 10% commission on their mining outputs!</p>
+                    <div class="bg-zinc-800/50 p-4 rounded-2xl flex items-center justify-between border border-zinc-700/50">
+                        <span class="text-zinc-300 font-mono text-sm overflow-hidden text-ellipsis">https://nairafund.com/ref?user=member</span>
+                        <button onclick="alert('Referral link copied!')" class="bg-emerald-500 hover:bg-emerald-600 text-black px-4 py-2 rounded-xl text-sm font-bold transition ml-2">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WITHDRAW TAB -->
+            <div id="tab-withdraw" class="tab-content hidden">
+                <div class="bg-zinc-900 rounded-3xl p-8 card max-w-md mx-auto border border-zinc-800">
+                    <h2 class="text-2xl font-semibold mb-6 text-emerald-400">Withdraw Funds</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm text-zinc-400 block mb-2">Select Bank</label>
+                            <select class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500">
+                                <option>Access Bank</option>
+                                <option>GTBank</option>
+                                <option>OPay</option>
+                                <option>Palmpay</option>
+                                <option>UBA</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-zinc-400 block mb-2">Account Number</label>
+                            <input type="number" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500" placeholder="0123456789">
+                        </div>
+                        <div>
+                            <label class="text-sm text-zinc-400 block mb-2">Amount (₦)</label>
+                            <input type="number" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500" placeholder="Minimum ₦2,000">
+                        </div>
+                        <button onclick="alert('Withdrawal request submitted successfully!')" class="w-full bg-emerald-500 hover:bg-emerald-600 py-4 rounded-3xl font-semibold text-black mt-4 transition">
+                            Proceed Withdrawal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
         let currentUser = null;
         let registeredUsers = JSON.parse(localStorage.getItem('nairafund_users')) || [];
         let miningActive = false;
@@ -61,10 +260,6 @@
 
             currentUser = user;
             document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
-            
-            // Sync user data to the withdrawal page fields automatically
-            document.getElementById('withdraw-name').value = user.name;
-            document.getElementById('withdraw-phone').value = user.phone;
 
             const hasLoggedBefore = localStorage.getItem(`logged_${user.phone}`);
             
@@ -125,35 +320,14 @@
             }, 100);
         }
 
-        // Withdrawal Code Logic Hooks
-        function openWithdrawalModal() {
-            document.getElementById('withdrawal-modal').classList.remove('hidden');
-        }
-
-        function closeWithdrawalModal() {
-            document.getElementById('withdrawal-modal').classList.add('hidden');
-        }
-
-        function submitWithdrawalCode() {
-            const code = document.getElementById('withdrawal-code').value.trim();
-            if (code.length < 8) {
-                alert("Please enter a valid 8-digit code.");
-                return;
-            }
-            alert("Checking code stability... Processing transaction request.");
-            closeWithdrawalModal();
-        }
-
-        // FAST LOAD: Instantly dismiss loading screen when DOM is ready
+        // Handle initialization window lifecycle properly
         window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('login-page').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('login-page').classList.remove('hidden');
+            }, 1200);
         });
-    q// Lifecycle loader window handler - Loads instantly!
-window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('loading-screen').classList.add('hidden');
-    document.getElementById('login-page').classList.remove('hidden');
-});
     </script>
-
+</body>
+        </html>
     
